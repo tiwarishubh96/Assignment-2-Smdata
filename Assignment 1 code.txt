@@ -1,0 +1,36 @@
+Solution:
+
+
+
+
+Map<String,Id> agNametoAccIdMap=new Map<String,Id>();
+
+for(Account acc:[select Id, AcctGroupName__c  from Account where name like 'AccList%']){
+    if(String.isNotblank(acc.AcctGroupName__c))
+    agNametoAccIdMap.put(acc.AcctGroupName__c,acc.Id);
+    
+}
+
+if(!agNametoAccIdMap.isEmpty()){
+    
+    Map<String,Id> agNametoAccGroupIdMap=new Map<String,Id>();
+    
+    for(AccountGroup__c ag:[Select id,name from AccountGroup__c where name In:agNametoAccIdMap.keySet()]){
+        agNametoAccGroupIdMap.put(ag.name,ag.Id);
+    }
+    List<Account> updateAccList=new List<Account>();
+    for(String agName: agNametoAccIdMap.keySet()){
+        
+        
+        if(agNametoAccGroupIdMap.containsKey(agName)){
+            Account acc=new Account();
+            acc.Id=agNametoAccIdMap.get(agName);
+            acc.AcctGroup_lookup__c=agNametoAccGroupIdMap.get(agName);
+            updateAccList.add(acc);
+        }
+    }
+    
+    if(!updateAccList.isEmpty()){
+        update updateAccList;
+    }
+}
